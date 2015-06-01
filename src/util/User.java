@@ -1,9 +1,11 @@
 package util;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -12,6 +14,7 @@ import java.util.Random;
  */
 public class User {
 
+    private String userID;
     private String firstName;
     private String lastName;
     private String email;
@@ -37,6 +40,18 @@ public class User {
         this.favouriteBands = favouriteBands;
     }
 
+    public JSONObject getSignupJson() {
+        return new JSONObject().put("email", getEmail()).put("password", getPassword()).put("role", "individual");
+    }
+
+    public JSONObject getDataJson() {
+        return new JSONObject().put("favourite_bands", getFavouriteBands())
+                .put("picture_url", getAvatarUrl())
+                .put("age", getAge())
+                .put("first_name",getFirstName())
+                .put("last_name",getLastName())
+                .put("friends_list",listFriendsIds());
+    }
 
     public User(JSONObject jsonUser) {
 
@@ -54,6 +69,14 @@ public class User {
         age = 14 + random.nextInt(30);
         facebookToken = RandomStringUtils.randomAlphanumeric(255);
 
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     public String getAuthToken() {
@@ -80,11 +103,16 @@ public class User {
         friends.remove(user);
     }
 
-    private String listFriends() {
+    private String listFriendsIds() {
         StringBuilder sb = new StringBuilder();
-        for (User user : friends) {
-            sb.append(user.getFirstName()).append(" ").append(user.getLastName()).append("\n");
+        sb.append("[");
+        int i = friends.size();
+        for(int j = 0;j<friends.size();j++){
+            sb.append(friends.get(j).getUserID());
+            if(j<i-1)
+                sb.append(",");
         }
+        sb.append("]");
         return sb.toString();
     }
 
@@ -95,11 +123,12 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", facebookToken='" + facebookToken + '\'' +
+                ", accessToken='" + authToken + '\'' +
                 ", age=" + age +
                 ", avatarUrl='" + avatarUrl + '\'' +
                 ", gender='" + gender + '\'' +
                 ", password='" + password + '\'' +
-                ", friends=" + listFriends() + " \n" +
+                ", friends=" + listFriendsIds() + " \n" +
                 ", favouriteBands=" + favouriteBands +
                 '}';
     }
@@ -143,4 +172,5 @@ public class User {
     public List<String> getFavouriteBands() {
         return favouriteBands;
     }
+
 }
